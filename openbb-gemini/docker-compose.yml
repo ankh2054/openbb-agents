@@ -1,0 +1,141 @@
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    ports:
+      - "4000:4000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    command: ["--model", "gemini/gemini-flash-latest", "--port", "4000"]
+    networks:
+      - default
+
+  agent-20-financial-prompt-optimizer:
+    build:
+      context: .
+      args:
+        AGENT_DIR: "20-financial-prompt-optimizer"
+    expose:
+      - "8095"
+    environment:
+      - OPENAI_BASE_URL=http://litellm:4000
+      - OPENAI_API_KEY=sk-fake-key
+      - VIRTUAL_HOST=prompt-optimizer.agent.sentnl.io
+      - VIRTUAL_PORT=8095
+      - LETSENCRYPT_HOST=prompt-optimizer.agent.sentnl.io
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    depends_on:
+      - litellm
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8095"]
+    networks:
+      - default
+      - cookz-net
+
+  agent-30-raw-widget-data:
+    build:
+      context: .
+      args:
+        AGENT_DIR: "30-vanilla-agent-raw-widget-data"
+    expose:
+      - "8095"
+    environment:
+      - OPENAI_BASE_URL=http://litellm:4000
+      - OPENAI_API_KEY=sk-fake-key
+      - VIRTUAL_HOST=raw-widget-data.agent.sentnl.io
+      - VIRTUAL_PORT=8095
+      - LETSENCRYPT_HOST=raw-widget-data.agent.sentnl.io
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    depends_on:
+      - litellm
+    command: ["uvicorn", "vanilla_agent_raw_context.main:app", "--host", "0.0.0.0", "--port", "8095"]
+    networks:
+      - default
+      - cookz-net
+
+  agent-31-reasoning-steps:
+    build:
+      context: .
+      args:
+        AGENT_DIR: "31-vanilla-agent-reasoning-steps"
+    expose:
+      - "8095"
+    environment:
+      - OPENAI_BASE_URL=http://litellm:4000
+      - OPENAI_API_KEY=sk-fake-key
+      - VIRTUAL_HOST=reasoning-steps.agent.sentnl.io
+      - VIRTUAL_PORT=8095
+      - LETSENCRYPT_HOST=reasoning-steps.agent.sentnl.io
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    depends_on:
+      - litellm
+    command: ["uvicorn", "vanilla_agent_reasoning_steps.main:app", "--host", "0.0.0.0", "--port", "8095"]
+    networks:
+      - default
+      - cookz-net
+
+  agent-32-raw-widget-data-citations:
+    build:
+      context: .
+      args:
+        AGENT_DIR: "32-vanilla-agent-raw-widget-data-citations"
+    expose:
+      - "8095"
+    environment:
+      - OPENAI_BASE_URL=http://litellm:4000
+      - OPENAI_API_KEY=sk-fake-key
+      - VIRTUAL_HOST=raw-widget-citations.agent.sentnl.io
+      - VIRTUAL_PORT=8095
+      - LETSENCRYPT_HOST=raw-widget-citations.agent.sentnl.io
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    depends_on:
+      - litellm
+    command: ["uvicorn", "vanilla_agent_raw_context_citations.main:app", "--host", "0.0.0.0", "--port", "8095"]
+    networks:
+      - default
+      - cookz-net
+
+  agent-34-tables:
+    build:
+      context: .
+      args:
+        AGENT_DIR: "34-vanilla-agent-tables"
+    expose:
+      - "8095"
+    environment:
+      - OPENAI_BASE_URL=http://litellm:4000
+      - OPENAI_API_KEY=sk-fake-key
+      - VIRTUAL_HOST=tables.agent.sentnl.io
+      - VIRTUAL_PORT=8095
+      - LETSENCRYPT_HOST=tables.agent.sentnl.io
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    depends_on:
+      - litellm
+    command: ["uvicorn", "vanilla_agent_tables.main:app", "--host", "0.0.0.0", "--port", "8095"]
+    networks:
+      - default
+      - cookz-net
+
+  agent-36-pdf-citations:
+    build:
+      context: .
+      args:
+        AGENT_DIR: "36-vanilla-agent-pdf-citations"
+    expose:
+      - "8095"
+    environment:
+      - OPENAI_BASE_URL=http://litellm:4000
+      - OPENAI_API_KEY=sk-fake-key
+      - VIRTUAL_HOST=pdf-citations.agent.sentnl.io
+      - VIRTUAL_PORT=8095
+      - LETSENCRYPT_HOST=pdf-citations.agent.sentnl.io
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    depends_on:
+      - litellm
+    command: ["uvicorn", "vanilla_agent_pdf_citations.main:app", "--host", "0.0.0.0", "--port", "8095"]
+    networks:
+      - default
+      - cookz-net
+
+networks:
+  default:
+  cookz-net:
+    external: true
