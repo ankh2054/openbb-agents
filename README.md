@@ -1,17 +1,16 @@
-# OpenBB + Gemini local Docker setup
+# OpenBB + Gemini Docker setup
 
-Containerized local stack to run OpenBB example agents through Gemini via LiteLLM.
+Containerized stack to run OpenBB example agents through Gemini via LiteLLM behind `nginx-proxy` + ACME.
 
 ## What this deploys
 
 - `litellm` bridge on `http://127.0.0.1:4000` (OpenAI-compatible API over Gemini)
-- `20-financial-prompt-optimizer` on `http://127.0.0.1:8095`
-- `30-vanilla-agent-raw-widget-data` on `http://127.0.0.1:8096`
-- `31-vanilla-agent-reasoning-steps` on `http://127.0.0.1:8097`
-- `32-vanilla-agent-raw-widget-data-citations` on `http://127.0.0.1:8098`
-- `34-vanilla-agent-tables` on `http://127.0.0.1:8099`
-- `35-vanilla-agent-pdf` on `http://127.0.0.1:8100`
-- `36-vanilla-agent-pdf-citations` on `http://127.0.0.1:8101`
+- `20-financial-prompt-optimizer` on `https://prompt-optimizer.agent.sentnl.io`
+- `30-vanilla-agent-raw-widget-data` on `https://raw-widget-data.agent.sentnl.io`
+- `31-vanilla-agent-reasoning-steps` on `https://reasoning-steps.agent.sentnl.io`
+- `32-vanilla-agent-raw-widget-data-citations` on `https://raw-widget-citations.agent.sentnl.io`
+- `34-vanilla-agent-tables` on `https://tables.agent.sentnl.io`
+- `36-vanilla-agent-pdf-citations` on `https://pdf-citations.agent.sentnl.io`
 
 All agent containers:
 
@@ -30,7 +29,6 @@ All agent containers:
 1. Create env file:
 
 ```bash
-cd openbb-gemini
 cp .env.example .env
 ```
 
@@ -38,11 +36,13 @@ cp .env.example .env
 
 ```dotenv
 GEMINI_API_KEY=your_real_key
+LETSENCRYPT_EMAIL=ops@sentnl.io
 ```
 
 3. Build and start:
 
 ```bash
+docker network create cookz-net || true
 docker compose build --no-cache
 docker compose up
 ```
@@ -57,13 +57,12 @@ docker compose up -d
 
 In OpenBB Copilot `+ Add Copilot`, register each URL:
 
-- `Gemini Prompt Optimizer` -> `http://127.0.0.1:8095`
-- `Gemini Raw Widget Data` -> `http://127.0.0.1:8096`
-- `Gemini Reasoning Steps` -> `http://127.0.0.1:8097`
-- `Gemini Raw Context Citations` -> `http://127.0.0.1:8098`
-- `Gemini Tables` -> `http://127.0.0.1:8099`
-- `Gemini PDF` -> `http://127.0.0.1:8100`
-- `Gemini PDF Citations` -> `http://127.0.0.1:8101`
+- `Gemini Prompt Optimizer` -> `https://prompt-optimizer.agent.sentnl.io`
+- `Gemini Raw Widget Data` -> `https://raw-widget-data.agent.sentnl.io`
+- `Gemini Reasoning Steps` -> `https://reasoning-steps.agent.sentnl.io`
+- `Gemini Raw Context Citations` -> `https://raw-widget-citations.agent.sentnl.io`
+- `Gemini Tables` -> `https://tables.agent.sentnl.io`
+- `Gemini PDF Citations` -> `https://pdf-citations.agent.sentnl.io`
 
 ## Useful commands
 
@@ -79,4 +78,4 @@ docker compose down
 - The example agents expect OpenAI-style env vars. We route them to LiteLLM with:
   - `OPENAI_BASE_URL=http://litellm:4000`
   - `OPENAI_API_KEY=sk-fake-key`
-- Port mappings use a unique host port per agent and internal `8095` in containers.
+- Agent containers are not host-exposed; they use `expose: 8095` and are reached through `nginx-proxy` on external Docker network `cookz-net`.
