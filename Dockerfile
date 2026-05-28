@@ -24,7 +24,14 @@ ARG AGENT_DIR
 WORKDIR /app/agents-for-openbb/${AGENT_DIR}
 
 # Shared runtime deps used by example agents
-RUN uv pip install --system --prerelease=allow langchain-openai fastapi uvicorn python-dotenv sse-starlette
+# pdfplumber is required by 36-vanilla-agent-pdf-citations.
+RUN uv pip install --system --prerelease=allow \
+    langchain-openai \
+    fastapi \
+    uvicorn \
+    python-dotenv \
+    sse-starlette \
+    pdfplumber
 
 # Smart patch for stricter model validation in openbb-ai
 RUN echo "import re" > /app/patcher.py && \
